@@ -1,8 +1,11 @@
-
 const express = require("express");
 const cors = require("cors");
 const morgan = require("morgan");
 const debug = require("debug")("series:server");
+const userRoutes = require("./routes/userRoutes");
+const auth = require("./middlewares/auth")
+const { notFoundErrorHandler, generalErrorHandler } = require("../error");
+
 
 const app = express();
 app.use(cors());
@@ -23,8 +26,11 @@ const initializeServer = (port) =>
 
 app.use(morgan("dev"));
 
-/* app.use("/users");
-app.use("/platforms");
+app.use("/users", userRoutes);
+/* app.use("/platforms");
 app.use("/series"); */
+
+app.use(notFoundErrorHandler);
+app.use(generalErrorHandler);
 
 module.exports = { app, initializeServer }
