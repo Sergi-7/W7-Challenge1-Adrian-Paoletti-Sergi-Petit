@@ -89,24 +89,49 @@ describe("Given a userController function", () => {
 
   describe("When register function is invoke with username and password that doesn't already exist", () => {
     test("Then it should create a new user", async () => {
-
-      const user = {
-        username: "samuel",
-        password: "ASDF1234",
-        admin: true
-      }
-      const { username } = user
       const req = {
-        body: user
+        body: {
+          username: "samuel",
+          password: "ASDF1234",
+          admin: true
+        }
+      };
+      const user = req.body;
+      const res = {
+        json: jest.fn(),
+      };
+      const next = jest.fn()
+      User.findOne = jest.fn().mockResolvedValue(null);
+      User.create = jest.fn().mockResolvedValue({ ...user, password: "ASDF1234" });
+      bcrypt.hash = jest.fn().mockResolvedValue("ASDF1234");
+      await registerUser(req, res, next);
+
+      expect(User.create).toHaveBeenCalledWith({ ...user, password: "ASDF1234" })
+    })
+  })
+
+  describe("When register function is invoke with an existent username", () => {
+    test("Then it should reject a new error with a 404 code", async () => {
+      const error = new Error("Username already exists CHANGE IT");
+      error.code = 404;
+      const req = {
+        body: {
+          username: "samuel",
+          password: "ASDF1234",
+          admin: true
+        }
       };
       const res = {
         json: jest.fn(),
       };
       const next = jest.fn()
-      User.create = jest.fn().mockResolvedValue({ username });
+      User.findOne = jest.fn().mockResolvedValue("samuel");
       await registerUser(req, res, next);
 
-      expect(User.create).toHaveBeenCalledWith(username)
+      expect(next).toHaveBeenCalled();
+      expect(next.mock.calls[0][0]).toHaveProperty("message", error.message);
+      expect(next.mock.calls[0][0]).toHaveProperty("code", error.code);
+
     })
   })
 })

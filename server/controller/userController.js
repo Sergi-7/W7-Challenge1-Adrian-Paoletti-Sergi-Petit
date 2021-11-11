@@ -6,18 +6,17 @@ const User = require("../../database/models/user");
 const registerUser = async (req, res, next) => {
   try {
     const user = req.body;
-    const { username } = req.body;
-    console.log(username);
-    const userCheck = await User.findOne({ username });
 
-    console.log(`here${userCheck}`)
+    const { username } = req.body;
+    const userCheck = await User.findOne({ username });
     if (userCheck !== null) {
-      console.log("asdfasdfasdf");
       const error = new Error("Username already exists CHANGE IT");
       error.code = 404;
       next(error);
     } else {
+      console.log(user.password)
       const userHashedPassword = await bcrypt.hash(user.password, 10)
+      console.log(userHashedPassword);
       const newUser = await User.create({ ...user, password: userHashedPassword });
       if (newUser) {
         res.json(newUser)
