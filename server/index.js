@@ -26,10 +26,9 @@ const initializeServer = (port) =>
   })
 
 app.use(morgan("dev"));
-
 app.use("/users", userRoutes);
 /* app.use("/platforms"); */
-app.use("/series", seriesRoutes);
+app.use("/series", auth, seriesRoutes);
 
 app.use(notFoundErrorHandler);
 app.use(generalErrorHandler);

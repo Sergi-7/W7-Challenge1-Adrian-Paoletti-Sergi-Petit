@@ -5,11 +5,6 @@ const serieSchema = new Schema({
     type: String,
     required: true,
   },
-  id: {
-    type: Types.ObjectId,
-    ref: "User",
-    required: true,
-  },
   platform: {
     type: Types.ObjectId,
     ref: "platform",

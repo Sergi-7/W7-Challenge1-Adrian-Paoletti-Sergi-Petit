@@ -1,8 +1,17 @@
+const debug = require("debug")("series:seriesController");
+const chalk = require("chalk");
 const Serie = require("../../database/models/serie");
+const User = require("../../database/models/user");
+
 
 const getSeries = async (req, res) => {
-  const series = await Serie.find({ user: req.userId });
-  res.json(series);
+  const user = await User.findOne({ _id: req.userId })
+    .populate([{
+      path: "seriesAll",
+    }, {
+      path: "seriesViwed",
+    }]);
+  res.json(user.seriesAll);
 };
 
 const getViewedSeries = async (req, res) => {
@@ -18,9 +27,17 @@ const getPendingSeries = async (req, res) => {
 const createSerie = async (req, res, next) => {
   try {
     const serie = req.body;
-    console.log(serie)
-    serie.user = req.userId;
     const newSerie = await Serie.create(serie);
+    // eslint-disable-next-line no-underscore-dangle
+    const user = await User.findOne({ _id: req.userId });
+    console.log(user);
+    // eslint-disable-next-line no-underscore-dangle
+    user.seriesAll = [...user.seriesAll, newSerie._id];
+    if (newSerie.seen) {
+      // eslint-disable-next-line no-underscore-dangle
+      user.seriesViwed = [...user.seriesViwed, newSerie._id]
+    }
+    await user.save(user);
     res.json(newSerie);
   } catch (error) {
     error.code = 400;
