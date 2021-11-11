@@ -2,9 +2,7 @@ const Serie = require("../../database/models/serie");
 const {
   getSeries,
   getViewedSeries,
-  // getPendingSeries,
-  // deleteSerie,
-  // toggleSerie,
+  getPendingSeries,
   createSerie,
   updateSerie,
   deleteSerie,
@@ -37,22 +35,23 @@ describe("Given a getSeries function", () => {
 describe("Given a getViewedSeries function", () => {
   describe("When it receives a request with an id 1 and a res object", () => {
     test("Then it should call Serie.find with property seen on true", async () => {
-      Serie.find = jest.fn().mockResolvedValue({ seen: true });
       const series = [
         { id: 1, name: "Matrix", seen: true, platform: "netflix" },
         { id: 2, name: "Vikings", seen: false, platform: "netflix" },
       ];
       const req = {
-        userId: 5,
+        name: "test",
+        platform: "618cbd1ffecad1bde2f3374e",
+        id: "618cbd1ffecad1bde2f3374e",
         seen: true,
       };
 
+      Serie.find = jest.fn().mockResolvedValue(series[0]);
       const res = {
         json: jest.fn(),
       };
 
       await getViewedSeries(req, res);
-
       expect(Serie.find).toHaveBeenCalled();
       expect(res.json).toHaveBeenCalledWith(series[0]);
     });
@@ -61,7 +60,26 @@ describe("Given a getViewedSeries function", () => {
 
 describe("Given a getPendingSeries function", () => {
   describe("When it receives a request with an id 1 and a res object", () => {
-    test("Then it should call Serie.find with property seen on false", () => {});
+    test("Then it should call Serie.find with property seen on false", async () => {
+      const series = [
+        { id: 1, name: "Matrix", seen: true, platform: "netflix" },
+        { id: 2, name: "Vikings", seen: false, platform: "netflix" },
+      ];
+      const req = {
+        userId: 5,
+        seen: false,
+      };
+
+      Serie.find = jest.fn().mockResolvedValue(series[1]);
+      const res = {
+        json: jest.fn(),
+      };
+
+      await getPendingSeries(req, res);
+
+      expect(Serie.find).toHaveBeenCalled();
+      expect(res.json).toHaveBeenCalledWith(series[1]);
+    });
   });
 });
 
@@ -86,6 +104,27 @@ describe("Given a createSerie function", () => {
 
       expect(Serie.create).toHaveBeenCalledWith(got);
       expect(res.json).toHaveBeenCalledWith(got);
+    });
+  });
+  describe("When it receives a request with an invalid body", () => {
+    test("Then it should return an error with a 400 status and a Serie not created message", async () => {
+      const got = {
+        username: "gameofthrones",
+        idhhh: 1,
+        viewed: true,
+      };
+      const req = { body: got };
+      const next = jest.fn();
+      Serie.create = jest.fn().mockResolvedValue(got);
+
+      const expectedError = {
+        code: 400,
+        message: "Serie not created !",
+      };
+
+      await createSerie(req, null, next);
+      console.log(next.mock.calls[0][0]);
+      expect(next.mock.calls[0][0]).toHaveProperty("code", expectedError.code);
     });
   });
 });
@@ -134,6 +173,25 @@ describe("Given an updateSerie function", () => {
       expect(res.json).toHaveBeenCalledWith(updatedSerie);
     });
   });
+  describe("When it receives an invalid id", () => {
+    test("Then it should call the next function with an 400 error", async () => {
+      Serie.findByIdAndUpdate = jest.fn().mockResolvedValue({ id: 1 });
+      const req = {
+        body: {
+          id: "3g3gwag3gag",
+        },
+      };
+
+      const next = jest.fn();
+      const expectedError = {
+        code: 400,
+        message: "Wrong id",
+      };
+
+      await updateSerie(req, null, next);
+      expect(next.mock.calls[0][0]).toHaveProperty("code", expectedError.code);
+    });
+  });
 });
 
 describe("Given a deleteSerie controller", () => {
@@ -164,21 +222,38 @@ describe("Given a deleteSerie controller", () => {
   });
   describe("When it receives a non existant id", () => {
     test("Then it should invoke an error and call next function", async () => {
-      Serie.findByIdAndDelete = jest.fn().mockResolvedValue({ id: 2 });
-      const req = {
-        body: {
-          id: 1,
-        },
-      };
-
+      Serie.findByIdAndDelete = jest.fn().mockResolvedValue(null);
       const next = jest.fn();
       const expectedError = {
         code: 404,
         message: "Serie not found",
       };
+      const req = {
+        body: {
+          id: 2,
+        },
+      };
+      await deleteSerie(req, null, next);
 
-      await updateSerie(req, null, next);
+      expect(next.mock.calls[0][0]).toHaveProperty("code", expectedError.code);
+    });
+  });
+  describe("When it receives an invalid id", () => {
+    test("Then it should invoke an error with a 400 code and call next function", async () => {
+      Serie.findByIdAndDelete = jest.fn().mockResolvedValue({ id: 1 });
+      const next = jest.fn();
+      const expectedError = {
+        code: 400,
+        message: "Wrong id",
+      };
 
+      const req = {
+        body: {
+          id: 2,
+        },
+      };
+
+      await deleteSerie(req, null, next);
       expect(next.mock.calls[0][0]).toHaveProperty("code", expectedError.code);
     });
   });

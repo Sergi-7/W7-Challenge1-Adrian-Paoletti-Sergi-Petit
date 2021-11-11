@@ -7,7 +7,6 @@ const getSeries = async (req, res) => {
 
 const getViewedSeries = async (req, res) => {
   const viewedSeries = await Serie.find({ user: req.userId, seen: true });
-  console.log(viewedSeries);
   res.json(viewedSeries);
 };
 
@@ -50,8 +49,11 @@ const updateSerie = async (req, res, next) => {
 const toggleSerie = async (req, res, next) => {
   const serie = req.body;
   try {
-    const toggledSerie = await Serie.findByIdAndUpdate(serie.id, serie);
-    if (toggledSerie) {
+    const toggledSerie = await Serie.findByIdAndUpdate(
+      serie.id,
+      (serie.seen = true)
+    );
+    if (toggledSerie.seen === false) {
       res.json(toggledSerie);
     } else {
       const error = new Error("Serie not found !");
@@ -89,6 +91,6 @@ module.exports = {
   getPendingSeries,
   createSerie,
   updateSerie,
-  toggleSerie,
   deleteSerie,
+  toggleSerie,
 };
