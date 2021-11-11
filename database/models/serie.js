@@ -21,6 +21,6 @@ const serieSchema = new Schema({
   },
 });
 
-const Serie = model("Serie", serieSchema);
+const Serie = model("Serie", serieSchema, "series");
 
 module.exports = Serie;

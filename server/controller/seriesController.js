@@ -18,6 +18,7 @@ const getPendingSeries = async (req, res) => {
 const createSerie = async (req, res, next) => {
   try {
     const serie = req.body;
+    console.log(serie)
     serie.user = req.userId;
     const newSerie = await Serie.create(serie);
     res.json(newSerie);
@@ -48,6 +49,8 @@ const updateSerie = async (req, res, next) => {
 
 const toggleSerie = async (req, res, next) => {
   const serie = req.body;
+  // eslint-disable-next-line no-underscore-dangle
+  console.log(serie._id)
   try {
     const toggledSerie = await Serie.findByIdAndUpdate(
       serie.id,

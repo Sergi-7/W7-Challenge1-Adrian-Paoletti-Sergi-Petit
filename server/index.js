@@ -3,6 +3,7 @@ const cors = require("cors");
 const morgan = require("morgan");
 const debug = require("debug")("series:server");
 const userRoutes = require("./routes/userRoutes");
+const seriesRoutes = require("./routes/seriesRoutes");
 const auth = require("./middlewares/auth")
 const { notFoundErrorHandler, generalErrorHandler } = require("../error");
 
@@ -27,8 +28,8 @@ const initializeServer = (port) =>
 app.use(morgan("dev"));
 
 app.use("/users", userRoutes);
-/* app.use("/platforms");
-app.use("/series"); */
+/* app.use("/platforms"); */
+app.use("/series", seriesRoutes);
 
 app.use(notFoundErrorHandler);
 app.use(generalErrorHandler);
