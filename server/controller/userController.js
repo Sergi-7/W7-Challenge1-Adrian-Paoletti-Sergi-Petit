@@ -7,8 +7,12 @@ const registerUser = async (req, res, next) => {
   try {
     const user = req.body;
     const { username } = req.body;
+    console.log(username);
     const userCheck = await User.findOne({ username });
+
+    console.log(`here${userCheck}`)
     if (userCheck !== null) {
+      console.log("asdfasdfasdf");
       const error = new Error("Username already exists CHANGE IT");
       error.code = 404;
       next(error);
@@ -33,7 +37,6 @@ const loginUser = async (req, res, next) => {
   const { username, password } = req.body;
   try {
     const user = await User.findOne({ username });
-    console.log(user.username)
     if (!user) {
       const error = new Error("Naranai");
       error.code = 401;
