@@ -1,4 +1,4 @@
-const jwt = require("jsonwebtoken")
+const jwt = require("jsonwebtoken");
 
 const Auth = (req, res, next) => {
   const authHeader = req.header("Authorization");
@@ -7,7 +7,7 @@ const Auth = (req, res, next) => {
     error.code = 401;
     next(error);
   } else {
-    const token = authHeader.split(" ")[1]
+    const token = authHeader.split(" ")[1];
     if (!token) {
       const error = new Error("Token incorrect");
       error.code = 401;
@@ -24,6 +24,6 @@ const Auth = (req, res, next) => {
       }
     }
   }
-}
+};
 
 module.exports = Auth;

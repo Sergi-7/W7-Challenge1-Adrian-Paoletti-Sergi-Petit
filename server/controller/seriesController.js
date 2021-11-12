@@ -27,6 +27,7 @@ const getPendingSeries = async (req, res) => {
 const createSerie = async (req, res, next) => {
   try {
     const serie = req.body;
+    serie.user = req.userId;
     const newSerie = await Serie.create(serie);
     // eslint-disable-next-line no-underscore-dangle
     const user = await User.findOne({ _id: req.userId });
@@ -48,8 +49,9 @@ const createSerie = async (req, res, next) => {
 
 const updateSerie = async (req, res, next) => {
   const serie = req.body;
+  const { idSerie } = req.params;
   try {
-    const updatedSerie = await Serie.findByIdAndUpdate(serie.id, serie);
+    const updatedSerie = await Serie.findByIdAndUpdate(idSerie, serie);
     if (updatedSerie) {
       res.json(updatedSerie);
     } else {
@@ -67,7 +69,7 @@ const updateSerie = async (req, res, next) => {
 const toggleSerie = async (req, res, next) => {
   const serie = req.body;
   // eslint-disable-next-line no-underscore-dangle
-  console.log(serie._id)
+  console.log(serie._id);
   try {
     const toggledSerie = await Serie.findByIdAndUpdate(
       serie.id,
@@ -88,11 +90,13 @@ const toggleSerie = async (req, res, next) => {
 };
 
 const deleteSerie = async (req, res, next) => {
-  const serie = req.body;
+  const { idSerie } = req.params;
+  console.log(idSerie);
   try {
-    const deletedSerie = await Serie.findByIdAndDelete(serie.id);
+    const deletedSerie = await Serie.findByIdAndDelete(idSerie);
     if (deletedSerie) {
       res.json(deletedSerie);
+      console.log(deletedSerie);
     } else {
       const error = new Error("Serie not found !");
       error.code = 404;
