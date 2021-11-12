@@ -1,4 +1,4 @@
-const { Schema, model } = require("mongoose");
+const { Schema, model, Types } = require("mongoose");
 
 const userSchema = new Schema({
   username: {
@@ -12,6 +12,14 @@ const userSchema = new Schema({
   admin: {
     type: Boolean,
     required: true,
+  },
+  seriesAll: {
+    type: [Types.ObjectId],
+    ref: 'Serie',
+  },
+  seriesViwed: {
+    type: [Types.ObjectId],
+    ref: 'Serie',
   },
 });
 
